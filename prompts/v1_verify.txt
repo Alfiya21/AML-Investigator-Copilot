@@ -1,0 +1,6 @@
+You check a draft against its source context.
+
+Split the draft into separate factual claims. Ignore headings and the suggested next steps, since those are advice rather than facts. For each claim decide whether the context block it cites (or any block, if none is cited) actually supports it. A claim with a wrong number, or a claim that goes further than the source says, is not supported.
+
+Reply with JSON only:
+{"claims": [{"text": "...", "supported": true, "source": "T1"}]}

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AML Investigator Copilot</title>
+<style>
+  :root { --ink:#1d2433; --muted:#667085; --line:#d9dee7; --accent:#1f5f8b; --bg:#f7f8fa; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.55 Georgia, "Times New Roman", serif; color:var(--ink); background:var(--bg); }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 24px; color: var(--muted); }
+  label { display:block; font-size:.9rem; color:var(--muted); margin: 14px 0 4px; }
+  select, input, textarea, button { font: inherit; }
+  select, input, textarea { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:4px; background:#fff; color:var(--ink); }
+  textarea { min-height: 64px; resize: vertical; }
+  button { margin-top: 16px; padding: 9px 18px; border:0; border-radius:4px; background:var(--accent); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.6; cursor: wait; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #result { margin-top: 28px; }
+  #answer { white-space: pre-wrap; background:#fff; border:1px solid var(--line); border-radius:4px; padding:16px; }
+  .meta { color: var(--muted); font-size:.9rem; margin: 10px 0; }
+  .warn { color:#8a4b00; }
+  table { width:100%; border-collapse: collapse; font-size:.9rem; background:#fff; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  h2 { font-size:1.05rem; margin: 28px 0 8px; }
+  ol { padding-left: 20px; margin: 6px 0; font-size:.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>AML Investigator Copilot</h1>
+  <p class="sub">Pick a flagged account and ask what the model saw and what the guidance says. Drafts are decision support; an analyst makes the call.</p>
+
+  <label for="account">Account</label>
+  <select id="account"></select>
+
+  <label for="question">Question</label>
+  <textarea id="question">Why was this account flagged, and what do the rules say?</textarea>
+
+  <button id="go">Investigate</button>
+
+  <div id="result" hidden>
+    <h2>Case summary</h2>
+    <div id="answer"></div>
+    <p class="meta" id="meta"></p>
+    <h2>Evidence used</h2>
+    <p class="meta">Tags in the summary refer to these lists in order: T for tool results, D for document passages.</p>
+    <ol id="tools"></ol>
+    <ol id="sources"></ol>
+  </div>
+
+  <h2>System metrics</h2>
+  <div id="metrics">Loading...</div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+
+async function loadAccounts() {
+  const res = await fetch('/accounts/sample');
+  const rows = await res.json();
+  $('account').innerHTML = rows.map(r =>
+    `<option value="${r.account_id}">${r.account_id} - score ${r.risk_score}${r.flagged ? ' (flagged)' : ''}</option>`).join('');
+}
+
+async function loadMetrics() {
+  const m = await (await fetch('/metrics')).json();
+  const rows = [
+    ['Runs', m.runs], ['Failed runs', m.failed_runs],
+    ['p50 latency (ms)', m.p50_run_latency_ms], ['p95 latency (ms)', m.p95_run_latency_ms],
+    ['Avg cost per run (USD)', m.avg_cost_per_run_usd],
+    ['Unsupported claim rate', m.unsupported_claim_rate],
+  ];
+  $('metrics').innerHTML = '<table>' + rows.map(r => `<tr><th>${r[0]}</th><td>${r[1] ?? '-'}</td></tr>`).join('') + '</table>';
+}
+
+$('go').onclick = async () => {
+  $('go').disabled = true; $('go').textContent = 'Working...';
+  try {
+    const res = await fetch('/investigate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({account_id: $('account').value, question: $('question').value}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    $('result').hidden = false;
+    $('answer').textContent = data.answer;
+    const v = data.verification;
+    $('meta').innerHTML = `${v.n_claims} claims checked, ${v.n_unsupported} unsupported after ${data.attempts} draft(s). ` +
+      `${(data.latency_ms / 1000).toFixed(1)} s.` +
+      (v.n_unsupported ? ' <span class="warn">Review the unsupported claims before relying on this.</span>' : '');
+    $('tools').innerHTML = data.tools_used.map(t => `<li>${t.tool}</li>`).join('');
+    $('sources').innerHTML = data.sources.map(s => `<li>${s.doc}, page ${s.page} (${s.kind})</li>`).join('');
+  } catch (e) {
+    $('result').hidden = false;
+    $('answer').textContent = 'Something went wrong: ' + e.message;
+  } finally {
+    $('go').disabled = false; $('go').textContent = 'Investigate';
+    loadMetrics();
+  }
+};
+
+loadAccounts(); loadMetrics();
+</script>
+</body>
+</html>

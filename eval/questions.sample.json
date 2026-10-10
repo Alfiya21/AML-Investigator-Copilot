@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is structuring and why is it a red flag?",
+    "expected_phrases": ["structuring"]
+  },
+  {
+    "question": "What indicators suggest funds are being moved through an account very quickly?",
+    "expected_phrases": ["rapid movement", "quickly", "pass-through", "pass through"]
+  },
+  {
+    "question": "When must a financial institution report a suspicious transaction?",
+    "expected_phrases": ["suspicious activity report", "suspicious transaction report", "SAR", "STR"]
+  }
+]

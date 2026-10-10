@@ -1,0 +1,1 @@
+This is a page from a regulatory or compliance document. Describe any charts, diagrams, flow charts or figures on it in a few sentences: what type it is, what it shows, the labels, and any numbers you can read. If the page has no figure worth describing, reply with exactly: NONE

@@ -1,0 +1,24 @@
+.env
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+data/*
+!data/raw_pdfs/
+data/raw_pdfs/*
+!data/raw_pdfs/.gitkeep
+models/*
+!models/.gitkeep
+eval/results_*.json
+
+# Local environment and generated artifacts
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+data/
+models/
+!data/raw_pdfs/.gitkeep
+!models/.gitkeep

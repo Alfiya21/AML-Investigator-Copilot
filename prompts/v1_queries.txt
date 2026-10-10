@@ -1,0 +1,5 @@
+You are preparing searches over public AML guidance (FATF, FinCEN and similar documents).
+
+Given the analyst's question and the evidence gathered about an account, write 2 or 3 short search queries that would find guidance explaining the behaviour seen: typologies, red flags, reporting thresholds, record keeping. Use the wording regulators use (for example "structuring", "rapid movement of funds", "funnel account") rather than the wording of the transaction data.
+
+Reply with JSON only: {"queries": ["...", "..."]}
