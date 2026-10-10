@@ -68,19 +68,31 @@ For `make eval`, copy `eval/questions.sample.json` to `eval/questions.json` and 
 
 ## Results
 
-Fill these in from your own runs. Don't copy numbers from anywhere else.
+## Results
 
-| What | Value |
+The following results are from the project's previous local evaluation run. Model metrics were measured on a **synthetic test dataset** and should not be interpreted as evidence of real-world AML detection performance.
+
+| **What** | **Value** |
 |---|---|
-| Model ROC-AUC / PR-AUC (synthetic test set) | |
-| Model recall / precision at chosen threshold | |
-| Retrieval hit rate@5 / MRR | |
-| Faithfulness / hallucination rate | |
-| p50 / p95 latency per investigation | |
-| Average cost per investigation | |
+| Model ROC-AUC (synthetic test set) | 0.9924 |
+| Model PR-AUC (synthetic test set) | 0.9659 |
+| Model recall at chosen threshold | 0.7812 (78.12%) |
+| Model precision at chosen threshold | 1.0000 (100%) |
+| Test set size | 800 accounts |
+| Positive cases in test set | 32 |
+| False positives / false negatives | 0 / 7 |
+| Retrieval hit rate@5 / MRR | Not measured yet |
+| Faithfulness / hallucination rate | Not measured yet |
+| p50 / p95 latency per investigation | Not measured yet |
+| Average cost per investigation | Not measured yet; local LLM setup and end-to-end testing pending |
 
-The model numbers come from synthetic data with injected patterns, so they say the pipeline works, not how it would do on real transactions.
+### Evaluation notes
 
+- The classification metrics above come from the previous synthetic-data test run.
+- The selected classification threshold should be documented alongside the model evaluation configuration.
+- Retrieval quality, evidence faithfulness, hallucination rate, and investigation latency require dedicated evaluation runs.
+- Cost per investigation has not been measured. The planned Ollama configuration is intended to run inference locally without paid OpenAI API credits, but local compute still has hardware and electricity costs.
+- These results are preliminary and do not establish production readiness or regulatory suitability.
 ## Known limits
 
 - Page images are captioned by a vision LLM and indexed as text. It is not image-embedding retrieval.
